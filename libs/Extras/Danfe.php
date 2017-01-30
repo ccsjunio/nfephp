@@ -1807,6 +1807,11 @@ class Danfe extends CommonNFePHP implements DocumentoNFePHP
                 $w = 28;
             }
             $increm = 1;
+            if ($this->orientacao == 'P') {
+               $maxDupCont = 6;
+            } else {
+               $maxDupCont = 8;
+            }
             foreach ($this->dup as $k => $d) {
                 $nDup = ! empty($this->dup->item($k)->getElementsByTagName('nDup')->item(0)->nodeValue) ?
                         $this->dup->item($k)->getElementsByTagName('nDup')->item(0)->nodeValue : '';
@@ -1840,11 +1845,6 @@ class Danfe extends CommonNFePHP implements DocumentoNFePHP
                 $this->pTextBox($x, $y, $w, $h, $vDup, $aFont, 'B', 'R', 0, '');
                 $x += $w+$increm;
                 $dupcont += 1;
-                if ($this->orientacao == 'P') {
-                    $maxDupCont = 6;
-                } else {
-                    $maxDupCont = 8;
-                }
                 if ($dupcont > $maxDupCont) {
                     $y += 9;
                     $x = $oldx;
@@ -2422,8 +2422,12 @@ class Danfe extends CommonNFePHP implements DocumentoNFePHP
         $this->pdf->Line($x+$w3, $y, $x+$w3, $y+$hmax);
         //O/CST
         $x += $w3;
-        $w4 = round($w*0.04, 0);
-        $texto = 'O/CST';
+        $w4 = round($w*0.05, 0);
+        if ($this->pSimpleGetValue($this->emit, 'CRT') == '3'){
+            $texto = 'O/CST'; // SE REGIME NORMAL EXIBE CST
+        }else{
+            $texto = 'O/CSOSN'; // SE REGIME SIMPLES EXIBE CSOSN
+        }
         $aFont = array('font'=>$this->fontePadrao, 'size'=>6, 'style'=>'');
         $this->pTextBox($x, $y, $w4, $h, $texto, $aFont, 'C', 'C', 0, '', false);
         $this->pdf->Line($x+$w4, $y, $x+$w4, $y+$hmax);

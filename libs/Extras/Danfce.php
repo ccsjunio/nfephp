@@ -32,7 +32,6 @@ use Endroid\QrCode\QrCode;
 use NFePHP\Extras\CommonNFePHP;
 use NFePHP\Extras\DocumentoNFePHP;
 use NFePHP\Extras\DomDocumentNFePHP;
-use NFePHP\NFe\ToolsNFe;
 
 /**
  * Classe DanfceNFePHP
@@ -126,6 +125,9 @@ class Danfce extends CommonNFePHP implements DocumentoNFePHP
         }
         .menor {
             font-size: 6.5pt;
+        }        
+        .rodape {
+            font-size: 5.5pt;
         }
         .tLeft {
             text-align: left;
@@ -139,6 +141,35 @@ class Danfce extends CommonNFePHP implements DocumentoNFePHP
         </style>";
     protected $imgQRCode;
     protected $urlQR = '';
+    protected $urlConsulta = array(
+        '11' => 'http://www.nfce.sefin.ro.gov.br/',
+        '12' => 'http://sefaznet.ac.gov.br/nfce/consulta.xhtml',
+        '13' => 'http://sistemas.sefaz.am.gov.br/nfceweb/formConsulta.do',
+        '14' => 'https://www.sefaz.rr.gov.br/nfce/servlet/wp_consulta_nfce',
+        '15' => 'https://appnfc.sefa.pa.gov.br/portal/view/consultas/nfce/consultanfce.seam',
+        '16' => 'https://www.sefaz.ap.gov.br/sate/seg/SEGf_AcessarFuncao.jsp?cdFuncao=FIS_1261',
+        '17' => 'http://www.sefaz.to.gov.br/nfce-portal',
+        '21' => 'http://www.nfce.sefaz.ma.gov.br/portal/consultaNFe.do?method=preFilterCupom',
+        '22' => 'http://webas.sefaz.pi.gov.br/nfceweb/',
+        '23' => '', // webservice nfce CE não encontrado
+        '24' => 'http://nfce.set.rn.gov.br/portalDFE/NFCe/ConsultaNFCe.aspx',
+        '25' => 'https://www.receita.pb.gov.br/ser/servirtual/documentos-fiscais/nfc-e/consultar-nfc-e',
+        '26' => 'http://nfce.sefaz.pe.gov.br/nfce-web/entradaConsNfce',
+        '27' => 'http://nfce.sefaz.al.gov.br/consultaNFCe.htm',
+        '28' => 'http://www.nfe.se.gov.br/portal/consultarNFCe.jsp',
+        '29' => 'http://nfe.sefaz.ba.gov.br/servicos/nfce/Modulos/Geral/NFCEC_consulta_chave_acesso.aspx',
+        '31' => '',// webservice nfce MG não encontrado
+        '32' => 'http://app.sefaz.es.gov.br/ConsultaNFCe',
+        '33' => 'http://www4.fazenda.rj.gov.br/consultaDFe/paginas/consultaChaveAcesso.faces',
+        '35' => 'https://www.nfce.fazenda.sp.gov.br/NFCeConsultaPublica/Paginas/ConsultaPublica.aspx',
+        '41' => 'http://www.fazenda.pr.gov.br/',
+        '42' => '', // webservice nfce SC não encontrado
+        '43' => 'https://www.sefaz.rs.gov.br/NFCE/NFCE-COM.aspx',
+        '50' => 'http://www.dfe.ms.gov.br/nfce/',
+        '52' => 'http://www.nfce.go.gov.br/post/ver/214278/consumid',
+        '51' => 'https://www.sefaz.mt.gov.br/nfce/consultanfce',
+        '53' => 'http://dec.fazenda.df.gov.br/NFCE/'
+    );
 
     /**
      * __contruct
@@ -184,8 +215,14 @@ class Danfce extends CommonNFePHP implements DocumentoNFePHP
         }
         $this->idToken = $idToken;
         $this->emitToken = $emitToken;
-        $this->urlQR = $urlQR;
-        $this->qrCode = $this->dom->getElementsByTagName('qrCode')->item(0)->nodeValue;
+		$this->qrCode = $this->dom->getElementsByTagName('qrCode')->item(0)->nodeValue;
+        // Monta o Link de Consulta caso não informado
+        if (empty($urlQR)) {
+            $linkQr = explode('?',$this->qrCode);
+            $this->urlQR = $linkQr[0];
+        } else {
+            $this->urlQR = $urlQR;
+        }
         $this->infCpl = $this->dom->getElementsByTagName("infCpl")->item(0)->nodeValue;
         if (isset($this->dom->getElementsByTagName("infAdFisco")->item(0)->nodeValue)) {
             $this->infAdFisco = $this->dom->getElementsByTagName("infAdFisco")->item(0)->nodeValue;
@@ -307,15 +344,15 @@ class Danfce extends CommonNFePHP implements DocumentoNFePHP
             $dhRecbto  = $this->pSimpleGetValue($this->nfeProc, "dhRecbto");
         }
         $digVal = $this->pSimpleGetValue($this->nfe, "DigestValue");
-        $chNFe = str_replace('NFe', '', $this->infNFe->getAttribute("Id"));
-        $chNFe = $this->pFormat($chNFe, "#### #### #### #### #### #### #### #### #### #### ####");
+        $id = str_replace('NFe', '', $this->infNFe->getAttribute("Id"));
+        $chNFe = $this->pFormat($id, "#### #### #### #### #### #### #### #### #### #### ####");
         $tpAmb = $this->pSimpleGetValue($this->ide, 'tpAmb');
         $tpEmis = $this->pSimpleGetValue($this->ide, 'tpEmis');
         $cUF = $this->pSimpleGetValue($this->ide, 'cUF');
         $nNF = $this->pSimpleGetValue($this->ide, 'nNF');
         $serieNF = str_pad($this->pSimpleGetValue($this->ide, "serie"), 3, "0", STR_PAD_LEFT);
         $dhEmi = $this->pSimpleGetValue($this->ide, "dhEmi");
-        $vTotTrib = $this->pSimpleGetValue($this->ICMSTot, "vTotTrib");
+        $vTotTrib = !empty($this->pSimpleGetValue($this->ICMSTot, "vTotTrib")) ? $this->pSimpleGetValue($this->ICMSTot, "vTotTrib") : 0.00;
         $vICMS = $this->pSimpleGetValue($this->ICMSTot, "vICMS");
         $vProd = $this->pSimpleGetValue($this->ICMSTot, "vProd");
         $vDesc  = $this->pSimpleGetValue($this->ICMSTot, "vDesc");
@@ -475,7 +512,15 @@ class Danfce extends CommonNFePHP implements DocumentoNFePHP
         $this->html .= "<th class=\"tLeft\">FORMA DE PAGAMENTO</th>\n";
         $this->html .= "<th class=\"tRight\">VALOR PAGO</th>\n";
         $this->html .= "</tr>\n";
-        $this->html .= self::pagamento($this->pag);
+        $this->html .= self::pagamento($this->pag);        
+        $this->html .= "</table>\n";
+        
+        // Valor aproximado dos produtos
+        $this->html .= "<table width=\"100%\">\n";
+        $this->html .= "<tr>\n";
+        $this->html .= "<td class=\"tLeft\">Tributos totais incidentes (Lei Federal 12.741/2012)</td>\n";
+        $this->html .= "<td class=\"tRight\">".number_format($vTotTrib, 2, ',', '.')."</td>\n";
+        $this->html .= "</tr>\n";        
         $this->html .= "</table>\n";
         
         // -- Divisão V – Área de Mensagem Fiscal
@@ -551,8 +596,14 @@ class Danfce extends CommonNFePHP implements DocumentoNFePHP
             $this->html .= $html2via;
         }
         
+        $this->html .= "<table width=\"100%\" class=\"noBorder\">\n";
+        $this->html .= "<tr>\n";
+        $this->html .= "<td colspan=\"3\" class=\"rodape tCenter\">Powered by NFePHP (GNU/GPLv3 GNU/LGPLv3) © www.nfephp.org</td>\n";
+        $this->html .= "</tr>\n";
+        $this->html .= "</table>\n";
+        
         $this->html .= "</body>\n</html>\n";
-        return $chNFe;
+        return $id;
     }
     
     /**
@@ -699,7 +750,10 @@ class Danfce extends CommonNFePHP implements DocumentoNFePHP
             $itensHtml .=  "<tr>\n";
             $itensHtml .=  "<td class=\"tLeft\">".htmlspecialchars($nitem)."</td>\n";
             $itensHtml .=  "<td class=\"tLeft\">".htmlspecialchars($cProd)."</td>\n";
-            $itensHtml .=  "<td class=\"tLeft\">".htmlspecialchars($xProd)."</td>\n";
+            $itensHtml .=  "<td class=\"tLeft\" colspan=\"5\">".htmlspecialchars($xProd)."</td>\n";
+            $itensHtml .=  "</tr>\n";
+            $itensHtml .=  "<tr>\n";
+            $itensHtml .=  "<td colspan=\"3\"></td>\n";
             $itensHtml .=  "<td class=\"tRight\">$qCom</td>\n";
             $itensHtml .=  "<td>$uCom</td>\n";
             $itensHtml .=  "<td class=\"tRight\">".htmlspecialchars($vUnCom)."</td>\n";

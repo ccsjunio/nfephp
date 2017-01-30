@@ -801,9 +801,10 @@ class MakeNFe extends BaseMake
                 $flagNome = false;//marca se xNome é ou não obrigatório
             }
         }
-        if ($this->tpAmb == '2' && $this->mod == '55') {
+        if ($this->tpAmb == '2') {
             $xNome = 'NF-E EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL';
             //a exigência do CNPJ 99999999000191 não existe mais
+            //removido modelo 55
         }
         if ($cnpj != '') {
             $this->dom->addChild(
@@ -1235,8 +1236,6 @@ class MakeNFe extends BaseMake
         $cEAN = '',
         $xProd = '',
         $NCM = '',
-        $NVE = '',
-        $CEST = '',
         $EXTIPI = '',
         $CFOP = '',
         $uCom = '',
@@ -1274,6 +1273,12 @@ class MakeNFe extends BaseMake
             . "código EAN ou código de barras",
             true
         );
+        
+        if ($this->tpAmb == '2' && $this->mod == '65') {
+            $xProd = 'NOTA FISCAL EMITIDA EM AMBIENTE DE HOMOLOGACAO - SEM VALOR FISCAL';
+            // quando for NFCe muda o nome do produto
+        }
+        
         $this->dom->addChild(
             $prod,
             "xProd",
@@ -1287,20 +1292,6 @@ class MakeNFe extends BaseMake
             $NCM,
             true,
             $identificador . "[item $nItem] Código NCM com 8 dígitos ou 2 dígitos (gênero)"
-        );
-        $this->dom->addChild(
-            $prod,
-            "NVE",
-            $NVE,
-            false,
-            $identificador . "[item $nItem] Código NVE com 2 letras maiúsculas e 4 dígitos"
-        );
-        $this->dom->addChild(
-            $prod,
-            "CEST",
-            $CEST,
-            false,
-            $identificador . "[item $nItem] Código CEST com 7 dígitos"
         );
         $this->dom->addChild(
             $prod,
@@ -1445,6 +1436,9 @@ class MakeNFe extends BaseMake
      */
     public function tagNVE($nItem = '', $texto = '')
     {
+        if ($texto == '') {
+            return '';
+        }
         $nve = $this->dom->createElement("NVE", $texto);
         $this->aNVE[$nItem][] = $nve;
         return $nve;
@@ -1463,6 +1457,9 @@ class MakeNFe extends BaseMake
      */
     public function tagCEST($nItem = '', $texto = '')
     {
+        if ($texto == '') {
+            return '';
+        }
         $cest = $this->dom->createElement("CEST", $texto);
         $this->aCest[$nItem][] = $cest;
         return $cest;
@@ -2300,24 +2297,24 @@ class MakeNFe extends BaseMake
      * tagICMSSN
      * Tributação ICMS pelo Simples Nacional N10c pai N01
      *
-     * @param  type $nItem
-     * @param  type $orig
-     * @param  type $csosn
-     * @param  type $modBC
-     * @param  type $vBC
-     * @param  type $pRedBC
-     * @param  type $pICMS
-     * @param  type $vICMS
-     * @param  type $pCredSN
-     * @param  type $vCredICMSSN
-     * @param  type $modBCST
-     * @param  type $pMVAST
-     * @param  type $pRedBCST
-     * @param  type $vBCST
-     * @param  type $pICMSST
-     * @param  type $vICMSST
-     * @param  type $vBCSTRet
-     * @param  type $vICMSSTRet
+     * @param type $nItem
+     * @param type $orig
+     * @param type $csosn
+     * @param type $modBC
+     * @param type $vBC
+     * @param type $pRedBC
+     * @param type $pICMS
+     * @param type $vICMS
+     * @param type $pCredSN
+     * @param type $vCredICMSSN
+     * @param type $modBCST
+     * @param type $pMVAST
+     * @param type $pRedBCST
+     * @param type $vBCST
+     * @param type $pICMSST
+     * @param type $vICMSST
+     * @param type $vBCSTRet
+     * @param type $vICMSSTRet
      * @return DOMElement
      */
     public function tagICMSSN(
@@ -2351,19 +2348,19 @@ class MakeNFe extends BaseMake
                     true,
                     "[item $nItem] Código de Situação da Operação Simples Nacional"
                 );
-                    $this->dom->addChild(
-                        $icmsSN,
-                        'pCredSN',
-                        $pCredSN,
-                        true,
-                        "[item $nItem] Alíquota aplicável de cálculo do crédito (Simples Nacional)."
-                    );
-                    $this->dom->addChild(
-                        $icmsSN,
-                        'vCredICMSSN',
-                        $vCredICMSSN,
-                        true,
-                        "[item $nItem] Valor crédito do ICMS que pode ser aproveitado nos termos do art. 23 da LC 123 (Simples Nacional)"
+                $this->dom->addChild(
+                    $icmsSN,
+                    'pCredSN',
+                    $pCredSN,
+                    false,
+                    "[item $nItem] Alíquota aplicável de cálculo do crédito (Simples Nacional)."
+                );
+                $this->dom->addChild(
+                    $icmsSN,
+                    'vCredICMSSN',
+                    $vCredICMSSN,
+                    false,
+                    "[item $nItem] Valor crédito do ICMS que pode ser aproveitado nos termos do art. 23 da LC 123 (Simples Nacional)"
                     );
                 break;
             case '102':
@@ -2412,14 +2409,14 @@ class MakeNFe extends BaseMake
                         $icmsSN,
                         'pCredSN',
                         $pCredSN,
-                        true,
+                        false,
                         "[item $nItem] Alíquota aplicável de cálculo do crédito (Simples Nacional)."
                     );
                     $this->dom->addChild(
                         $icmsSN,
                         'vCredICMSSN',
                         $vCredICMSSN,
-                        true,
+                        false,
                         "[item $nItem] Valor crédito do ICMS que pode ser aproveitado nos termos do art. 23 da LC 123 (Simples Nacional)"
                     );
                 break;
@@ -2809,8 +2806,8 @@ class MakeNFe extends BaseMake
         $pisst = $this->dom->createElement('PISST');
         $this->dom->addChild($pisst, 'vBC', $vBC, true, "[item $nItem] Valor da Base de Cálculo do PIS");
         $this->dom->addChild($pisst, 'pPIS', $pPIS, true, "[item $nItem] Alíquota do PIS (em percentual)");
-        $this->dom->addChild($pisst, 'qBCProd', $qBCProd, true, "[item $nItem] Quantidade Vendida");
-        $this->dom->addChild($pisst, 'vAliqProd', $vAliqProd, true, "[item $nItem] Alíquota do PIS (em reais)");
+        $this->dom->addChild($pisst, 'qBCProd', $qBCProd, false, "[item $nItem] Quantidade Vendida");
+        $this->dom->addChild($pisst, 'vAliqProd', $vAliqProd, false, "[item $nItem] Alíquota do PIS (em reais)");
         $this->dom->addChild($pisst, 'vPIS', $vPIS, true, "[item $nItem] Valor do PIS");
         $this->aPISST[$nItem] = $pisst;
         return $pisst;
@@ -2918,8 +2915,8 @@ class MakeNFe extends BaseMake
         $cofinsst = $this->dom->createElement("COFINSST");
         $this->dom->addChild($cofinsst, "vBC", $vBC, true, "[item $nItem] Valor da Base de Cálculo da COFINS");
         $this->dom->addChild($cofinsst, "pCOFINS", $pCOFINS, true, "[item $nItem] Alíquota da COFINS (em percentual)");
-        $this->dom->addChild($cofinsst, "qBCProd", $qBCProd, true, "[item $nItem] Quantidade Vendida");
-        $this->dom->addChild($cofinsst, "vAliqProd", $vAliqProd, true, "[item $nItem] Alíquota da COFINS (em reais)");
+        $this->dom->addChild($cofinsst, "qBCProd", $qBCProd, false, "[item $nItem] Quantidade Vendida");
+        $this->dom->addChild($cofinsst, "vAliqProd", $vAliqProd, false, "[item $nItem] Alíquota da COFINS (em reais)");
         $this->dom->addChild($cofinsst, "vCOFINS", $vCOFINS, true, "[item $nItem] Valor da COFINS");
         $this->aCOFINSST[$nItem] = $cofinsst;
         return $cofinsst;
@@ -3355,8 +3352,11 @@ class MakeNFe extends BaseMake
         $siglaUF = ''
     ) {
         $transporta = $this->dom->createElement("transporta");
-        $this->dom->addChild($transporta, "CNPJ", $numCNPJ, false, "CNPJ do Transportador");
-        $this->dom->addChild($transporta, "CPF", $numCPF, false, "CPF do Transportador");
+        if (!empty($numCNPJ)) {
+            $this->dom->addChild($transporta, "CNPJ", $numCNPJ, false, "CNPJ do Transportador");
+        } else {
+            $this->dom->addChild($transporta, "CPF", $numCPF, false, "CPF do Transportador");
+        }
         $this->dom->addChild($transporta, "xNome", $xNome, false, "Razão Social ou nome do Transportador");
         $this->dom->addChild($transporta, "IE", $numIE, false, "Inscrição Estadual do Transportador");
         $this->dom->addChild($transporta, "xEnder", $xEnder, false, "Endereço Completo do Transportador");
@@ -3604,7 +3604,7 @@ class MakeNFe extends BaseMake
         $tpIntegra = ''
     ) {
         //apenas para modelo 65
-        if ($this->mod == '65' && $tBand != '') {
+        if ($this->mod == '65' && ($tBand != '' || $tpIntegra == '2')) {
             $card = $this->dom->createElement("card");
             $this->dom->addChild(
                 $card,
@@ -3617,21 +3617,21 @@ class MakeNFe extends BaseMake
                 $card,
                 "CNPJ",
                 $cnpj,
-                true,
+                false,
                 "CNPJ da Credenciadora de cartão de crédito e/ou débito"
             );
             $this->dom->addChild(
                 $card,
                 "tBand",
                 $tBand,
-                true,
+                false,
                 "Bandeira da operadora de cartão de crédito e/ou débito"
             );
             $this->dom->addChild(
                 $card,
                 "cAut",
                 $cAut,
-                true,
+                false,
                 "Número de autorização da operação cartão de crédito e/ou débito"
             );
             $this->dom->appChild($this->aPag[count($this->aPag)-1], $card, '');

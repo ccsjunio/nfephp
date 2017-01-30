@@ -193,8 +193,6 @@ $aP[] = array(
         'cEAN' => '97899072659522',
         'xProd' => 'Chopp Pilsen - Barril 30 Lts',
         'NCM' => '22030000',
-        'NVE' => '',
-        'CEST' => '0302300', // Convênio ICMS 92/15
         'EXTIPI' => '',
         'CFOP' => '5101',
         'uCom' => 'Un',
@@ -220,8 +218,6 @@ $aP[] = array(
         'cEAN' => '7896030801822',
         'xProd' => 'Copo Personalizado Klima 300ml',
         'NCM' => '39241000',
-        'NVE' => '',
-        'CEST' => '',
         'EXTIPI' => '',
         'CFOP' => '5102',
         'uCom' => 'Cx',
@@ -247,8 +243,6 @@ foreach ($aP as $prod) {
     $cEAN = $prod['cEAN'];
     $xProd = $prod['xProd'];
     $NCM = $prod['NCM'];
-    $NVE = $prod['NVE'];
-    $CEST = $prod['CEST'];
     $EXTIPI = $prod['EXTIPI'];
     $CFOP = $prod['CFOP'];
     $uCom = $prod['uCom'];
@@ -267,9 +261,10 @@ foreach ($aP as $prod) {
     $xPed = $prod['xPed'];
     $nItemPed = $prod['nItemPed'];
     $nFCI = $prod['nFCI'];
-    $resp = $nfe->tagprod($nItem, $cProd, $cEAN, $xProd, $NCM, $NVE, $CEST, $EXTIPI, $CFOP, $uCom, $qCom, $vUnCom, $vProd, $cEANTrib, $uTrib, $qTrib, $vUnTrib, $vFrete, $vSeg, $vDesc, $vOutro, $indTot, $xPed, $nItemPed, $nFCI);
+    $resp = $nfe->tagprod($nItem, $cProd, $cEAN, $xProd, $NCM, $EXTIPI, $CFOP, $uCom, $qCom, $vUnCom, $vProd, $cEANTrib, $uTrib, $qTrib, $vUnTrib, $vFrete, $vSeg, $vDesc, $vOutro, $indTot, $xPed, $nItemPed, $nFCI);
 }
-
+$nfe->tagCEST(1, '2345');
+$nfe->tagCEST(2, '9999');
 // Informações adicionais na linha do Produto
 /*$nItem = 1; //produtos 1
 $vDesc = 'Barril 30 Litros Chopp Tipo Pilsen - Pedido Nº15';
@@ -393,13 +388,13 @@ $resp = $nfe->tagICMS($nItem, $orig, $cst, $modBC, $pRedBC, $vBC, $pICMS, $vICMS
 
 $vST = $vICMSST; // Total de ICMS ST
 
-//ICMSPart - ICMS em Operações Interestaduais - CST 10
+//ICMSPart - ICMS em Operações Interestaduais - CST 10 e 90 quando possui partilha (com partilha do ICMS entre a UF origem e a UF de destino ou UF definida na legislação)
 //$resp = $nfe->tagICMSPart($nItem, $orig, $cst, $modBC, $vBC, $pRedBC, $pICMS, $vICMS, $modBCST, $pMVAST, $pRedBCST, $vBCST, $pICMSST, $vICMSST, $pBCOp, $ufST);
 
-//ICMSST - Tributação ICMS por Substituição Tributária (ST) - CST 40, 41, 50 e 51
+//ICMSST - Tributação ICMS por Substituição Tributária (ST) - CST 41 (devido para a UF de destino, nas operações interestaduais de produtos que tiveram retenção antecipada de ICMS por ST na UF do remetente)
 //$resp = $nfe->tagICMSST($nItem, $orig, $cst, $vBCSTRet, $vICMSSTRet, $vBCSTDest, $vICMSSTDest);
 
-//ICMSSN - Tributação ICMS pelo Simples Nacional - CST 30
+//ICMSSN - Tributação ICMS pelo Simples Nacional - CRT (Código de Regime Tributário) = 1 
 //$resp = $nfe->tagICMSSN($nItem, $orig, $csosn, $modBC, $vBC, $pRedBC, $pICMS, $vICMS, $pCredSN, $vCredICMSSN, $modBCST, $pMVAST, $pRedBCST, $vBCST, $pICMSST, $vICMSST, $vBCSTRet, $vICMSSTRet);
 
 //IPI - Imposto sobre Produto Industrializado

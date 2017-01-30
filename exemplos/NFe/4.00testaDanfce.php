@@ -3,7 +3,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', 'On');
 require_once '../../bootstrap.php';
 
-use NFePHP\NFe\ToolsNFe;
 use NFePHP\Extras\Danfce;
 use NFePHP\Common\Files\FilesFolders;
 
@@ -25,10 +24,17 @@ $xmlProt = "D:/xampp/htdocs/GIT-nfephp-org/nfephp/xmls/NF-e/homologacao/enviadas
 // Uso da nomeclatura '-danfce.pdf' para facilitar a diferenciação entre PDFs DANFE e DANFCE salvos na mesma pasta...
 $pdfDanfe = "D:/xampp/htdocs/GIT-nfephp-org/nfephp/xmls/NF-e/homologacao/pdf/201607/{$chave}-danfce.pdf";
 
+//$xmlProt = "../xml/xml-erro-montaDanfce.xml";
+$xmlProt = "../xml/xml-problema-qrcode.xml";
 $docxml = FilesFolders::readFile($xmlProt);
-//$danfce = new Danfce($docxml, $logo, 2, $idCSC, $codCSC, $urlQR);
-$danfce = new Danfce($docxml, '../../images/logo.jpg');
 
+$pathLogo = '../../images/logo.jpg';
+$danfce = new Danfce($docxml, $pathLogo, 2);
+
+$ecoNFCe = false; //false = Não (NFC-e Completa); true = Sim (NFC-e Simplificada)
 $id = $danfce->montaDANFCE($ecoNFCe);
-$salva = $danfce->printDANFCE('pdf', $pdfDanfe, 'F'); //Salva na pasta pdf
+
+$pdfDanfe = "$id-danfce.pdf";
+//$salva = $danfce->printDANFCE('pdf', $pdfDanfe, 'F'); //Salva na pasta pdf
+
 $abre = $danfce->printDANFCE($saida, $pdfDanfe, 'I'); //Abre na tela

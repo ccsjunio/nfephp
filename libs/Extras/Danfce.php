@@ -73,6 +73,7 @@ class Danfce extends CommonNFePHP implements DocumentoNFePHP
             font-size: 8pt;
             background: #FFF none repeat scroll 0 0;
             margin: 8px;
+            width: 361px;
         }
         h5, p {
             margin: 0pt;
@@ -415,9 +416,8 @@ class Danfce extends CommonNFePHP implements DocumentoNFePHP
         $this->html .= "<tr>\n";
         $this->html .= "<td><img src=\"$this->logomarca\" width=\"82\" ></td>\n";
         $this->html .= "<td colspan=\"2\">".htmlspecialchars($emitRazao)."<br>CNPJ:$emitCnpj I.E.:$emitIE<br>".
-                htmlspecialchars($emitLgr . ", nº" . $emitNro). "<br>".
-                htmlspecialchars($emitCpl) . "<br>".
-                htmlspecialchars($emitBairro . ", " . $emitMun . ", " . $emitUF) . "<br>CEP: $emitCEP $emitFone</td>\n";
+                htmlspecialchars("{$emitLgr}, nº {$emitNro}, {$emitCpl}, {$emitBairro}<br>{$emitMun}-{$emitUF}").
+                htmlspecialchars("<br>CEP: {$emitCEP} {$emitFone}") . "</td>\n";
         $this->html .= "</tr>\n";
         $this->html .= "</table>\n";
         

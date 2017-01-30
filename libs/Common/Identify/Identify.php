@@ -49,7 +49,9 @@ class Identify
     {
         if ($xml == '') {
             return '';
-        } elseif (is_file($xml)) {
+        } elseif (eregi(".xml$", $xml)) {
+            // eregi() no lugar is_file() evita o erro: 
+            // File name is longer than the maximum allowed path length on this platform (4096)
             $xml = FilesFolders::readFile($xml);
         }
         $dom = new Dom('1.0', 'utf-8');
